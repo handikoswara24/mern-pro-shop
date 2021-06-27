@@ -1,11 +1,35 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Row, Col, Image, ListGroup, Button } from "react-bootstrap";
-import products from "../products";
 import Rating from "../components/Rating";
+import axios from "axios";
+
+interface Product {
+    _id: string,
+    name: string,
+    image: string,
+    description: string,
+    brand: string,
+    category: string,
+    price: number,
+    countInStock: number,
+    rating: number,
+    numReviews: number,
+}
 
 const ProductScreen = ({ match }: any) => {
-    const product = products.find(p => p._id == match.params.id);
+    const [product, setProduct] = useState({} as Product);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const { data } = await axios.get(`/api/products/${match.params.id}`);
+            setProduct(data);
+        };
+
+        fetchProducts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     if (product == null) {
         return (
             <div>
