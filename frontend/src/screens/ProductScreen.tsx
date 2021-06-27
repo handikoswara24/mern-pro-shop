@@ -27,8 +27,7 @@ const ProductScreen = ({ match }: any) => {
         };
 
         fetchProducts();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [match]);
 
     if (product == null) {
         return (
