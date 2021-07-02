@@ -1,47 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { RootStateOrAny, useDispatch, useSelector } from "react-redux";
 import { Row, Col, Image, ListGroup, Button } from "react-bootstrap";
 import Rating from "../components/Rating";
-import axios from "axios";
+import { listProductDetails } from "../actions/productActions";
+import Loader from "../components/Loader";
+import Message from "../components/Message";
 
-interface Product {
-    _id: string,
-    name: string,
-    image: string,
-    description: string,
-    brand: string,
-    category: string,
-    price: number,
-    countInStock: number,
-    rating: number,
-    numReviews: number,
-}
+// interface Product {
+//     _id: string,
+//     name: string,
+//     image: string,
+//     description: string,
+//     brand: string,
+//     category: string,
+//     price: number,
+//     countInStock: number,
+//     rating: number,
+//     numReviews: number,
+// }
 
 const ProductScreen = ({ match }: any) => {
-    const [product, setProduct] = useState({} as Product);
+    const dispatch = useDispatch();
+
+    const productDetails = useSelector((state: RootStateOrAny) => state.productDetails);
+
+    const { error, product, loading } = productDetails;
 
     useEffect(() => {
-        const fetchProducts = async () => {
-            const { data } = await axios.get(`/api/products/${match.params.id}`);
-            setProduct(data);
-        };
+        dispatch(listProductDetails(match.params.id))
+    }, [dispatch, match]);
 
-        fetchProducts();
-    }, [match]);
-
-    if (product == null) {
-        return (
-            <div>
-
-            </div>
-        )
-    }
     return (
         <>
             <Link to="/" className="btn btn-light my-3">
                 Go Back
             </Link>
-            <Row>
+            {loading ? <Loader></Loader> : error ? <Message variant="danger">{error}</Message> : <Row>
                 <Col md={6}>
                     <Image src={product.image} alt={product.name} fluid />
                 </Col>
@@ -87,6 +82,7 @@ const ProductScreen = ({ match }: any) => {
                     </ListGroup>
                 </Col>
             </Row>
+            }
         </>
     )
 }
