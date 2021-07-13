@@ -1,5 +1,5 @@
 import axios from "axios";
-import { USER_LOGIN_FAIL, USER_LOGIN_REQUEST, USER_LOGIN_SUCCESS, USER_LOGOUT, USER_REGISTER_REQUEST, USER_REGISTER_SUCCESS, USER_REGISTER_FAIL, USER_REGISTER_LOGOUT, USER_DETAILS_REQUEST, USER_DETAILS_SUCCESS, USER_DETAILS_FAIL } from "../constants/userConstants";
+import { USER_LOGIN_FAIL, USER_LOGIN_REQUEST, USER_LOGIN_SUCCESS, USER_LOGOUT, USER_REGISTER_REQUEST, USER_REGISTER_SUCCESS, USER_REGISTER_FAIL, USER_REGISTER_LOGOUT, USER_DETAILS_REQUEST, USER_DETAILS_SUCCESS, USER_DETAILS_FAIL, USER_UPDATE_PROFILE_REQUEST, USER_UPDATE_PROFILE_SUCCESS, USER_UPDATE_PROFILE_FAIL, USER_UPDATE_PROFILE_RESET } from "../constants/userConstants";
 
 export const login = (email: any, password: any) => async (dispatch: any) => {
     try {
@@ -35,6 +35,10 @@ export const logout = () => (dispatch: any) => {
 
     dispatch({
         type: USER_REGISTER_LOGOUT
+    })
+
+    dispatch({
+        type: USER_UPDATE_PROFILE_RESET
     })
 }
 
@@ -92,5 +96,32 @@ export const getUserDetails = (id: any) => async (dispatch: any, getState: any) 
 
     } catch (error) {
         dispatch({ type: USER_DETAILS_FAIL, payload: error.response && error.response.data.message ? error.response.data.message : error.message })
+    }
+}
+
+export const updateUserProfile = (user: any) => async (dispatch: any, getState: any) => {
+    try {
+        dispatch({
+            type: USER_UPDATE_PROFILE_REQUEST
+        });
+
+        const { userLogin: { userInfo } } = getState();
+
+        const config = {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${userInfo.token}`
+            }
+        };
+
+        const { data } = await axios.put(`/api/users/profile`, user, config);
+
+        dispatch({
+            type: USER_UPDATE_PROFILE_SUCCESS,
+            payload: data
+        })
+
+    } catch (error) {
+        dispatch({ type: USER_UPDATE_PROFILE_FAIL, payload: error.response && error.response.data.message ? error.response.data.message : error.message })
     }
 }
